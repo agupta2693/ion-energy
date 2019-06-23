@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>Ion Energy</title>
+    <script src="vendor/ajax.jquery.min.js"></script>
+    <script src="vendor/jquery.form.min.js"></script>
+    <script src="vendor/canvasjs.min.js"></script>
+    <script src="js/index.js"></script>
+  </head>
+  <body>
+      <h1>Ion energy - Historical Data</h1>
+      
+        <!-- <form id="uploadBill" enctype="multipart/form-data" action="/getBillAmount" method="post">
+          <input type="file" name="bill" id="selectBill" /><br/><br/>
+          <input type="submit" value="Submit"><br/><br/>
+          <span id="output"></span>
+        </form> -->
+        <button id="drawChartBtn">Display 1 year historical data</button>
+        <button style="margin-left:50px;">
+          <a href="/real-time-sensor-data" target="_blank">Get Real time data</a>
+        </button>
+        <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+  </body>
+</html>
