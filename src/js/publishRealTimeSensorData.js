@@ -1,23 +1,16 @@
-$(document).ready(function() {  
+app.controller('publish_real_time_data_controller', function($scope, $http) {
+  
+  $scope.sensorValue = 50;
 
-    $('#publishData').click(function() {
+  $scope.publishData = function() {
+    var data = {
+      'ts' : new Date().getTime(),
+      'val' : $scope.sensorValue
+    };
 
-      var x = $('#sensorValue').val();
-
-      var data = {
-        'ts' : new Date().getTime(),
-        'val' : x
-      }
-
-      $.ajax({
-        type: "POST",
-        url: '/publishRealTimeSensorData',
-        data: data,
-        success: function() {
-        } 
-      });
-
-    });
-
-
-}); 
+    $http.post('/publishRealTimeSensorData', data)
+      .then(function(response) {
+        alert('Sensor Value Published!');
+      })
+  }
+});

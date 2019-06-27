@@ -1,12 +1,58 @@
 <html>
   <head>
     <title>Ion Energy</title>
+    <script src="https://code.angularjs.org/1.6.9/angular.js"></script>
     <script src="vendor/ajax.jquery.min.js"></script>
     <script src="vendor/jquery.form.min.js"></script>
     <script src="vendor/canvasjs.min.js"></script>
+
+    <!-- Angulas JS imports -->
+    <script src="js/ion-energy-app-module.js"></script>
     <script src="js/index.js"></script>
+    <style>
+      
+      #loadingSign {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  opacity: .8;
+}
+
+.ajax-loader {
+  position: sticky;
+  margin-left: 30%; /* -1 * image width / 2 */
+  margin-top: 20%;
+  display: block;
+}
+
+.modalCss {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 50px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 10px;
+  border: 1px solid #888;
+  width: 100%;
+}
+    </style>
   </head>
-  <body>
+  <body ng-app="ion-energy-app" ng-controller="index_controller">
       <h1>Ion energy - Historical Data</h1>
       
         <!-- <form id="uploadBill" enctype="multipart/form-data" action="/getBillAmount" method="post">
@@ -14,10 +60,13 @@
           <input type="submit" value="Submit"><br/><br/>
           <span id="output"></span>
         </form> -->
-        <button id="drawChartBtn">Display 1 year historical data</button>
+        <button style="cursor:pointer;" id="drawChartBtn" ng-click="getChartData()">Display existing batch data</button>
         <button style="margin-left:50px;">
           <a href="/real-time-sensor-data" target="_blank">Get Real time data</a>
         </button>
         <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+        <div id="loadingSign" height="100%">
+          <img src="img/loading.gif" class="ajax-loader"/>
+        </div>
   </body>
 </html>

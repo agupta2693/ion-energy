@@ -2,7 +2,50 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const fs = require('fs');
 const moment = require('moment');
-const bodyParser = require('body-parser')
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const ThermoSensorService = require('./services/ThermoSensorService');
+
+
+async function saveThermoSensorIfNotExists(thermoSensorName) {
+	var thermoSensorExists = await ThermoSensorService.checkIfThermoSensorExists(thermoSensorName);
+	console.log(thermoSensorName + ' : ' + thermoSensorExists);
+	if(thermoSensorExists) {
+		ThermoSensorService.displayBatchDataLength(thermoSensorName);
+	}
+	else {
+		var thermoSensor = await ThermoSensorService.save(thermoSensorName);
+	}
+}
+
+function checkForNewBatchDataAndStoreIt() {
+	fs.readdir('./batch_data/', (err, fileNames) => {
+		if(err) {
+			console.error('Error while reading directory :', err);
+			return;
+		}
+
+		fileNames.forEach(async function(fileName) {
+			console.log('fileName:' + fileName);
+			var fileNameArray = fileName.split('.');
+			if(fileNameArray[1] == "json" && fileNameArray.length == 2) {
+				thermoSensorName = fileNameArray[0];
+				saveThermoSensorIfNotExists(thermoSensorName);
+			}
+			else {
+				console.error('Invalid fileName : ' + fileName);
+			}
+		});
+	});
+}
+
+mongoose.connect('mongodb://localhost:27017/ion-energy')
+	.then((err) => {
+		console.log('Connected to mongodb database...');
+		checkForNewBatchDataAndStoreIt();
+		//ThermoSensorService.removeAll();
+	})
+	.catch((err) => console.error('Error while connectiong to mongodb:', err));
 
 const app = express();
 app.use(bodyParser.json());
@@ -13,6 +56,7 @@ const io = require('socket.io')(server);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('*/js', express.static(__dirname + '/src/js'));
 app.use('*/vendor', express.static(__dirname + '/src/vendor'));
+app.use('*/img', express.static(__dirname + '/src/static/img'));
 
 moment().format();
 var realTimeSensorDataSubscribers = {};
@@ -38,44 +82,13 @@ app.post('/publishRealTimeSensorData', (req, res) => {
 	res.send(req.body);
 });
 
-var readFile = function(callback) {
-	fs.readFile('./THERM0001.json', 'utf8', (err, data) => {
-		console.log('Reading done');
-		var arr = JSON.parse(data);
-		console.log(arr.length);
-		
-		var newArr = {};
-		var yearStartMillis = arr[0].ts;
-		var oneYearInMillis = 365*24*60*60*1000;
-		var yearEndMillis = yearStartMillis + oneYearInMillis;
-		
-		for(var i in arr) {
-			if(arr[i].ts < yearEndMillis) {
-				var weekNumber = moment(arr[i].ts).week();
-				if(newArr[weekNumber]) {
-					newArr[weekNumber].totalValue += arr[i].val;
-					newArr[weekNumber].totalInputs++;
-				}
-				else {
-					newArr[weekNumber] = {
-						totalValue : arr[i].val,
-						totalInputs : 1,
-						weekDateInMillis : arr[i].ts
-					};
-				}
-			}
-		}
-		callback(newArr);
-	});
-}
-
 app.get('/getChartData', (req, res) => {
 	
 	var callback = function(data) {
 		console.log("Sending Response");
 		res.send(data);
 	};
-	readFile(callback);
+	ThermoSensorService.getWeeklyAverageThermoSensorData(callback);
 });
 
 io.on('connection', function(socket) {

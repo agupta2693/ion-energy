@@ -1,13 +1,17 @@
 <html>
   <head>
     <title>Ion Energy</title>
+    <script src="https://code.angularjs.org/1.6.9/angular.js"></script>
     <script src="vendor/ajax.jquery.min.js"></script>
     <script src="vendor/jquery.form.min.js"></script>
     <script src="vendor/canvasjs.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Angulas JS imports -->
+    <script src="js/ion-energy-app-module.js"></script>
     <script src="js/realTimeSensor.js"></script>
   </head>
-  <body>
+  <body ng-app="ion-energy-app" ng-controller="real_time_sensor_controller">
       <h1>Ion energy - Real time sensor</h1>
         Click <a href="/publish-real-time-data" target="_blank">here</a> to Publish Real time sensor data
         <div id="chartContainer" style="height: 400px; width: 95%;"></div>

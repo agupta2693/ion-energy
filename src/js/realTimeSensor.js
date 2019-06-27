@@ -1,24 +1,25 @@
-$(document).ready(function() {  
+app.controller('real_time_sensor_controller', function($scope) {
+    
 
-    var chart;
-     var dataPoints = [ {
-        x : new Date(),
-        y : 22
-      },
-      {
-        x : new Date(new Date().getTime() + 1000),
-        y : 28
-      }];
+    $scope.drawChart = function() {
 
-    var drawChart = function() {
+      $scope.dataPoints = [ {
+          x : new Date(),
+          y : 22
+        },
+        {
+          x : new Date(new Date().getTime() + 1000),
+          y : 28
+        }
+      ];
 
       var data = [];
       var dataSeries = { type: "scatter" };
      
-      dataSeries.dataPoints = dataPoints;
+      dataSeries.dataPoints = $scope.dataPoints;
       data.push(dataSeries);
       
-      chart = new CanvasJS.Chart("chartContainer", {
+      $scope.chart = new CanvasJS.Chart("chartContainer", {
         animationEnabled: false,
         title:{
           text: "Thermometer sensor data"
@@ -42,10 +43,12 @@ $(document).ready(function() {
         },
         data: data
       });
-      chart.render();  
+
+      $scope.chart.render();  
     }
 
-    var connectSocket = function() {
+    $scope.connectSocket = function() {
+      console.log('Connecting socket...');
       var socket = io.connect('http://localhost:8343');
       
       socket.on('connect', function(msg) {
@@ -55,16 +58,18 @@ $(document).ready(function() {
 
       socket.on('newSensorData', function(dps) {
         console.log('newSensorData : ' + JSON.stringify(dps));
-        dataPoints.push({
+        $scope.dataPoints.push({
           x: new Date(parseInt(dps.ts)),
           y: parseInt(dps.val)
         });
-        chart.render();
+        $scope.chart.render();
       });
 
     }
 
-    drawChart();
-    connectSocket();
+    $scope.drawChart();
+    $scope.connectSocket();
 
-}); 
+
+
+});

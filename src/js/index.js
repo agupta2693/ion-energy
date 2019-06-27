@@ -1,22 +1,19 @@
-$(document).ready(function() {  
 
-    var drawChart = function(dps) {
+app.controller('index_controller', function($scope, $http) {
 
-      console.log('inside func1 : ' + dps.length);
+  $('#loadingSign').hide();
+  $scope.drawChart = function(dps) {
 
       var data = [];
       var dataSeries = { type: "scatter" };
       var dataPoints = [];
       dataSeries.dataPoints = dataPoints;
       data.push(dataSeries);
-
-      console.log('inside func2 : ' + data[0].dataPoints.length);
-
       
       var chart = new CanvasJS.Chart("chartContainer", {
       animationEnabled: false,
       title:{
-        text: "Thermometer sensor data"
+        text: "Thermometer sensor data - Weekly Average"
       },
       axisX: {
         labelFormatter: function (e) {
@@ -33,8 +30,6 @@ $(document).ready(function() {
     });
     chart.render();
 
-    console.log('inside func3 : ' + dps.length);
-
     for(var i in dps) {
       chart.data[0].addTo("dataPoints", {
         x: new Date(dps[i].weekDateInMillis),
@@ -42,35 +37,17 @@ $(document).ready(function() {
       });
     }
   }
-    
-    $('#uploadBill').submit(function(e) {
-        e.preventDefault(); 
 
-        $("#output").empty().text("Finding Bill Amount...");  
-  
-        $(this).ajaxSubmit({  
-  
-            error: function(err) {  
-                    $("#output").empty().text('Error: ' + err.responseText);  
-            },  
-  
-            success: function(response) {  
-                    console.log(response)  
-                    $("#output").empty().text(response);  
-            }  
-        });  
-    });
-
-    $('#drawChartBtn').click(function() {
-      $.getJSON('/getChartData', function(data) {
-        console.log('request completed : ' + JSON.stringify(data[1]));
-        drawChart(data); 
+  $scope.getChartData = function() {
+    $('#loadingSign').show();
+    console.log('Fetching data');
+    $http.get('/getChartData')
+      .then(function(response) {
+        console.log('Data received');
+        $scope.batchData = response.data;
+        $scope.drawChart($scope.batchData);
+        $('#loadingSign').hide();
       });
-    });
+  };
 
-    $("#selectBill").change(function(){
-        $("#output").empty();
-    });
-
-
-}); 
+});
